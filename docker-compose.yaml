@@ -1,0 +1,96 @@
+version: '3.9'
+
+services:
+  song-service:
+    build:
+      context: ./song
+      #dockerfile: Dockerfile
+    #image: song-service-img
+    hostname: song-service-host
+    container_name: song-service_container
+    depends_on:
+      - song-db
+    environment:
+      - DB_USER=${SONG_DB_USER}
+      - PASSWORD=${SONG_DB_USER_PASSWORD}
+      - DB_HOST=song-db-container
+      - DB_PORT=5432
+      - DB_NAME=${SONG_DB_NAME}
+    ports:
+      - "8088:8088"
+
+
+  resource-service:
+    build:
+      context: ./resource
+      #dockerfile: Dockerfile
+    #image: resource-service-img
+    hostname: resource-service-host
+    container_name: resource-service-container
+    depends_on:
+      - resource-db
+    environment:
+      - DB_USER=${RESOURCE_DB_USER}
+      - PASSWORD=${RESOURCE_DB_USER_PASSWORD}
+      - DB_HOST=resource-db-container
+      - DB_PORT=5432
+      - DB_NAME=${RESOURCE_DB_NAME}
+      #- SONG_SERVICE_HOST=song-service-host
+    ports:
+      - "8080:8080"
+
+  resource-processor-service:
+    build:
+      context: ./resource
+
+    hostname: resource-service-host
+    container_name: resource-service-container
+    depends_on:
+      - resource-db
+    environment:
+      - DB_USER=${RESOURCE_DB_USER}
+      - PASSWORD=${RESOURCE_DB_USER_PASSWORD}
+      - DB_HOST=resource-db-container
+      - DB_PORT=5432
+      - DB_NAME=${RESOURCE_DB_NAME}
+      - SONG_SERVICE_HOST=song-service-host
+    ports:
+      - "8090:8090"
+
+  song-db:
+    image: postgres:alpine
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile-postgres
+    container_name: song-db-container
+    environment:
+      - POSTGRES_USER=${SONG_DB_USER}
+      - POSTGRES_PASSWORD=${SONG_DB_USER_PASSWORD}
+      - POSTGRES_DB=${SONG_DB_NAME}
+    ports:
+      - "${SONG_LOCAL_PORT}:${SONG_DOCKER_PORT}"
+    volumes:
+      #- ./init-db:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+
+  resource-db:
+    image: postgres:alpine
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile-postgres
+    container_name: resource-db-container
+    environment:
+      - POSTGRES_USER=${RESOURCE_DB_USER}
+      - POSTGRES_PASSWORD=${RESOURCE_DB_USER_PASSWORD}
+      - POSTGRES_DB=${RESOURCE_DB_NAME}
+    ports:
+      - "${RESOURCE_LOCAL_PORT}:${RESOURCE_DOCKER_PORT}"
+    volumes:
+      #- ./init-db:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+
+

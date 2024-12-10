@@ -1,0 +1,20 @@
+FROM alpine:latest
+
+# Install 'postgresql' package and 'su-exec' for easy step-down from root
+RUN apk add --no-cache postgresql su-exec
+
+# Make our usual PostgreSQL directories
+RUN mkdir -p /var/run/postgresql /var/lib/postgresql/data
+RUN chown -R postgres:postgres /var/run/postgresql /var/lib/postgresql/data
+
+# Switch to the 'postgres' user
+USER postgres
+
+# Initialize the database
+RUN initdb -D /var/lib/postgresql/data
+
+# Expose PostgreSQL's default port
+EXPOSE 5432
+
+# Set the default command to run when starting a container from this image
+CMD ["postgres", "-D", "/var/lib/postgresql/data"]
