@@ -13,6 +13,7 @@
     <module>song-service</module>
     <module>resource</module>
     <module>resource-processor</module>
+    <module>song-service</module>
   </modules>
 
   <properties>

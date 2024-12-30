@@ -1,0 +1,20 @@
+package uz.mservice.song.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MetadataMissingExceptions.class)
+    public ResponseEntity<String> handleMetadataMissingExceptions(MetadataMissingExceptions ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SongNotFoundExeption.class)
+    public ResponseEntity<String> handleSongNotFoundExeption(SongNotFoundExeption ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+}
